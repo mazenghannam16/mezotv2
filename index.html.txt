@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fox TV</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #333;
+            color: white;
+        }
+        .logo {
+            margin-top: 50px;
+        }
+        .button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: #777;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            width: 80%;
+            text-align: left;
+        }
+        .button img {
+            width: 30px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="logo.png" alt="Fox TV Logo" width="150">
+    </div>
+    <h1>تطبيق FOX TV النسخة الأصلية</h1>
+    <a href="#" class="button"><img src="download_icon.png"> تحميل مباشر</a>
+    <a href="#" class="button"><img src="mediafire_icon.png"> تحميل من ميديا فاير</a>
+    <a href="#" class="button"><img src="mega_icon.png"> تحميل من ميجا</a>
+    <a href="#" class="button"><img src="google_drive_icon.png"> تحميل من جوجل درايف</a>
+</body>
+</html>
