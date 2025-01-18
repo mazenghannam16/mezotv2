@@ -3,362 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MezoCima</title>
+    <title>توليد الكود</title>
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #022020;
-            color: #ffffff;
-        }
-
-        .search-container {
-            background-color: #022020;
-            padding: 20px;
-            border-radius: 10px;
-            display: inline-block;
-        }
-
-        .search-container input {
-            padding: 12px;
-            font-size: 18px;
-            border: none;
-            border-radius: 5px;
-            width: 250px;
-            outline: none;
-            font-weight: bold;
-        }
-
-        .search-container button {
-            padding: 12px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #f1c40f;
-            color: #310003;
-            cursor: pointer;
-            margin-left: 10px;
-            font-weight: bold;
-        }
-
-        #result {
-            margin-top: 20px;
-        }
-
-        img {
-            max-width: 150px;
-            margin-top: 10px;
-        }
-
-        .info-row {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .info-row button {
-            margin-left: 10px;
-            background-color: #011C44;
-            border: none;
-            padding: 8px;
-            border-radius: 5px;
-            color: #310003;
-        }
-
-        textarea {
-            width: 300px;
-            height: 30px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #333;
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            font-weight: bold;
-            resize: none;
-        }
-
-        .cast-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .cast-item {
-            text-align: center;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <h1>ابحث عن فيلم أو مسلسل</h1>
-    <div class="search-container">
-        <input type="text" id="searchTerm" placeholder="ابحث عن فيلم أو مسلسل بالاسم أو ID">
-        <button onclick="searchMovieByName()">بحث بالاسم</button>
-        <button onclick="searchMovieById()">بحث بالـ ID</button>
-    </div>
-
-    <div id="result"></div>
-
-<script>
-    const apiKey = '4b1125dc507cd0f303b025b30d6311dd';
-
-    async function searchMovieByName() {
-        const searchTerm = document.getElementById('searchTerm').value;
-        if (!searchTerm) {
-            alert('الرجاء إدخال اسم الفيلم أو المسلسل');
-            return;
-        }
-
-        const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${searchTerm}&language=ar`;
-
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-
-            if (data.results.length > 0) {
-                displayResult(data.results[0]);
-            } else {
-                document.getElementById('result').innerHTML = '<p>لم يتم العثور على نتائج.</p>';
-            }
-        } catch (error) {
-            console.error(error);
-            document.getElementById('result').innerHTML = '<p>حدث خطأ أثناء البحث. الرجاء المحاولة مرة أخرى.</p>';
-        }
-    }
-
-    async function searchMovieById() {
-        const searchTerm = document.getElementById('searchTerm').value;
-        if (!searchTerm) {
-            alert('الرجاء إدخال الـ ID');
-            return;
-        }
-
-        const url = `https://api.themoviedb.org/3/movie/${searchTerm}?api_key=${apiKey}&language=ar`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('لم يتم العثور على فيلم أو مسلسل بهذا الـ ID');
-            }
-
-            const data = await response.json();
-            displayResult(data);
-        } catch (error) {
-            console.error(error);
-            document.getElementById('result').innerHTML = `<p>${error.message}</p>`;
-        }
-    }
-
-    async function fetchCast(movieId) {
-        const url = `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${apiKey}&language=ar`;
-
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            return data.cast.slice(0, 10); // عرض أول 10 ممثلين فقط
-        } catch (error) {
-            console.error(error);
-            return [];
-        }
-    }
-
-    async function displayResult(result) {
-        const title = result.title || result.name;
-        const description = result.overview || "لا يوجد وصف متاح";
-        const releaseDate = result.release_date || result.first_air_date || "غير متاح";
-        const imagePath = result.poster_path;
-        const imageUrl = `https://image.tmdb.org/t/p/original${imagePath}`;
-
-        let castHTML = '';
-        if (result.id) {
-            const cast = await fetchCast(result.id);
-            castHTML = cast.map(member => 
-                `<div class="cast-item">
-                    <img src="https://image.tmdb.org/t/p/w200${member.profile_path}" alt="${member.name}">
-                    <textarea id="castName-${member.id}" readonly>${member.name}</textarea>
-                    <button onclick="copyText('castName-${member.id}')">نسخ اسم الممثل</button>
-                    <textarea id="castImage-${member.id}" readonly>https://image.tmdb.org/t/p/w200${member.profile_path}</textarea>
-                    <button onclick="copyText('castImage-${member.id}')">نسخ صورة الممثل</button>
-                </div>`
-            ).join('');
-        }
-
-        document.getElementById('result').innerHTML = `
-            <h2>${title}</h2>
-            <textarea id="movieTitle" readonly>${title}</textarea>
-            <button onclick="copyText('movieTitle')">نسخ اسم الفيلم</button>
-            <img src="${imageUrl}" alt="${title}">
-            <textarea id="movieImage" readonly>${imageUrl}</textarea>
-            <button onclick="copyText('movieImage')">نسخ صورة الفيلم</button>
-
-            <div class="info-row">
-                <strong>الوصف:</strong>
-                <textarea id="description" readonly>${description}</textarea>
-                <button onclick="copyText('description')">نسخ الوصف</button>
-            </div>
-
-            <div class="info-row">
-                <strong>تاريخ الإصدار:</strong>
-                <textarea id="releaseDate" readonly>${releaseDate}</textarea>
-                <button onclick="copyText('releaseDate')">نسخ تاريخ الإصدار</button>
-            </div>
-
-            <div class="cast-list">
-                ${castHTML || '<p>لا يوجد بيانات لفريق العمل</p>'}
-            </div>
-        `;
-    }
-
-    function copyText(id) {
-        const textArea = document.getElementById(id);
-        if (textArea) {
-            textArea.select();
-            document.execCommand("copy");
-            alert("تم نسخ النص إلى الحافظة!");
-        } else {
-            const text = id;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("تم نسخ النص إلى الحافظة!");
-            });
-        }
-    }
-</script>
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مولد فريق العمل</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #022020;
-            padding: 20px;
-            text-align: center;
-        }
-        input, button {
-            padding: 10px;
-            margin: 10px;
-        }
-        .actor-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
-        .actor-item {
-            text-align: center;
-        }
-        .actor-item img {
-            max-width: 150px;
-            border-radius: 8px;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 10px;
-            margin-top: 20px;
-            font-family: 'Arial', sans-serif;
-            font-size: 14px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: ##022020;
-            resize: none;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { margin: 10px; padding: 10px; }
+        textarea { width: 100%; height: 300px; }
     </style>
 </head>
 <body>
-    <h1>مولد كود فريق العمل</h1>
 
-    <!-- إدخال معلومات الممثلين -->
-    <div>
-        <input type="text" id="actorName" placeholder="أدخل اسم الممثل">
-        <input type="text" id="actorImage" placeholder="أدخل رابط صورة الممثل">
-        <button onclick="addActor()">أضف ممثل</button>
-    </div>
+    <h1>توليد كود HTML</h1>
 
-    <!-- عرض الممثلين المدخلين -->
-    <div class="actor-container" id="actorList"></div>
+    <label for="name">اسمك:</label>
+    <input type="text" id="name" placeholder="أدخل اسمك هنا">
 
-    <!-- توليد الكود -->
+    <label for="section">اسم القسم:</label>
+    <input type="text" id="section" placeholder="أدخل اسم القسم هنا">
+
+    <label for="server1">رابط سيرفر 1:</label>
+    <input type="text" id="server1" placeholder="أدخل رابط سيرفر 1">
+
+    <label for="server2">رابط سيرفر 2:</label>
+    <input type="text" id="server2" placeholder="أدخل رابط سيرفر 2">
+
+    <label for="server3">رابط سيرفر 3:</label>
+    <input type="text" id="server3" placeholder="أدخل رابط سيرفر 3">
+
+    <label for="server4">رابط سيرفر 4:</label>
+    <input type="text" id="server4" placeholder="أدخل رابط سيرفر 4">
+
+    <label for="server5">رابط سيرفر 5:</label>
+    <input type="text" id="server5" placeholder="أدخل رابط سيرفر 5">
+
+    <label for="download">رابط تحميل الفيلم:</label>
+    <input type="text" id="download" placeholder="أدخل رابط تحميل الفيلم">
+
     <button onclick="generateCode()">توليد الكود</button>
 
-    <!-- عرض الكود الناتج -->
+    <h2>الكود الناتج:</h2>
     <textarea id="generatedCode" readonly></textarea>
 
     <script>
-        let actors = [];
-
-        // إضافة ممثل إلى القائمة
-        function addActor() {
-            const name = document.getElementById('actorName').value;
-            const image = document.getElementById('actorImage').value;
-
-            if (name && image) {
-                actors.push({ name, image });
-                updateActorList();
-            } else {
-                alert('الرجاء إدخال اسم وصورة الممثل');
-            }
-
-            // مسح الحقول بعد الإضافة
-            document.getElementById('actorName').value = '';
-            document.getElementById('actorImage').value = '';
-        }
-
-        // تحديث عرض الممثلين
-        function updateActorList() {
-            const actorList = document.getElementById('actorList');
-            actorList.innerHTML = ''; // مسح المحتوى الحالي
-
-            actors.forEach(actor => {
-                actorList.innerHTML += `
-                    <div class="actor-item">
-                        <img src="${actor.image}" alt="${actor.name}">
-                        <span>${actor.name}</span>
-                    </div>
-                `;
-            });
-        }
-
-        // توليد الكود
         function generateCode() {
-            if (actors.length === 0) {
-                alert('الرجاء إضافة ممثلين');
-                return;
-            }
+            const name = document.getElementById('name').value;
+            const section = document.getElementById('section').value;
+            const server1 = document.getElementById('server1').value;
+            const server2 = document.getElementById('server2').value;
+            const server3 = document.getElementById('server3').value;
+            const server4 = document.getElementById('server4').value;
+            const server5 = document.getElementById('server5').value;
+            const download = document.getElementById('download').value;
 
-            let generatedCode = `<div class="post-actors" dir="ltr">
-                                <h4><span>فريق</span> <em>العمل</em></h4>
-                                <div class='owl-carousel' id='owl-slide'>`;
+            const generatedHTML = `
+<ul class="InformationList">
+    <li><span>تم النشر بواسطة:</span>${name}</li>
+    <li><span>القسم:</span>${section}</li>
+</ul>
+<div class="watch-server">
+    <div class="container">
+        <div class="watch-server-side">
+            <h2>سيرفرات المشاهدة</h2>
+            <button class="watch-server-button active tablinks" onclick="openCity(event, 'server01')">سيرفر 1</button>
+            <button class="watch-server-button tablinks" onclick="openCity(event, 'server02')">سيرفر 2</button>
+            <button class="watch-server-button tablinks" onclick="openCity(event, 'server03')">سيرفر 3</button>
+            <button class="watch-server-button tablinks" onclick="openCity(event, 'server04')">سيرفر 4</button>
+            <button class="watch-server-button tablinks" onclick="openCity(event, 'server05')">سيرفر 5</button>
+        </div>
+        <div class="watch-server-content">
+            <div id="server01" class="tabcontent" style="display: block;">
+                <iframe width="100%" height="460" src="${server1}" scrolling="no" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div id="server02" class="tabcontent" style="display: none;">
+                <iframe width="100%" height="460" src="${server2}" scrolling="no" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div id="server03" class="tabcontent" style="display: none;">
+                <iframe width="100%" height="460" src="${server3}" scrolling="no" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div id="server04" class="tabcontent" style="display: none;">
+                <iframe width="100%" height="460" src="${server4}" scrolling="no" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div id="server05" class="tabcontent" style="display: none;">
+                <iframe width="100%" height="460" src="${server5}" scrolling="no" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="WatchBar"><span>AlexBest</span></div>
+        </div>
+        <div class="watch-server-download">
+            <a href="${download}" target="_blank" class="download_link">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjplhCvgHsgH8Udw8xjeiYWio7w9K9KmLw4-ZMgQH6ndo1lTc_l8rQOqzj6GG-sPl-BrHgV1TXdxhY7bCnwNshWmiedyNhkVpJTpQWkDBoRDm7cr7xIErqU0sH70vFsVsrkX86JRUXd6tPmduhXxsWk-uGiP74sQUFbbsqhmvy0O9YPBx5YuCuGcI5q/s1600/1682581904_1610501503_down.png" width="40" height="40" alt="">VipServer
+            </a>
+        </div>
+    </div>
+</div>
+            `;
 
-            actors.forEach(actor => {
-                generatedCode += `
-                    <div>
-                        <div class="owl-actors-box">
-                            <div class="owl-actors-thumb">
-                                <img src="${actor.image}" alt="${actor.name}">
-                            </div>
-                            <span>${actor.name}</span>
-                        </div>
-                    </div>
-                `;
-            });
-
-            generatedCode += `</div></div>`;
-
-            // عرض الكود الناتج في textarea
-            document.getElementById('generatedCode').value = generatedCode;
+            document.getElementById('generatedCode').value = generatedHTML;
         }
     </script>
+
 </body>
 </html>
-
