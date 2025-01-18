@@ -229,3 +229,136 @@
 </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد فريق العمل</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #022020;
+            padding: 20px;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+        }
+        .actor-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        .actor-item {
+            text-align: center;
+        }
+        .actor-item img {
+            max-width: 150px;
+            border-radius: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-top: 20px;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: ##022020;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>مولد كود فريق العمل</h1>
+
+    <!-- إدخال معلومات الممثلين -->
+    <div>
+        <input type="text" id="actorName" placeholder="أدخل اسم الممثل">
+        <input type="text" id="actorImage" placeholder="أدخل رابط صورة الممثل">
+        <button onclick="addActor()">أضف ممثل</button>
+    </div>
+
+    <!-- عرض الممثلين المدخلين -->
+    <div class="actor-container" id="actorList"></div>
+
+    <!-- توليد الكود -->
+    <button onclick="generateCode()">توليد الكود</button>
+
+    <!-- عرض الكود الناتج -->
+    <textarea id="generatedCode" readonly></textarea>
+
+    <script>
+        let actors = [];
+
+        // إضافة ممثل إلى القائمة
+        function addActor() {
+            const name = document.getElementById('actorName').value;
+            const image = document.getElementById('actorImage').value;
+
+            if (name && image) {
+                actors.push({ name, image });
+                updateActorList();
+            } else {
+                alert('الرجاء إدخال اسم وصورة الممثل');
+            }
+
+            // مسح الحقول بعد الإضافة
+            document.getElementById('actorName').value = '';
+            document.getElementById('actorImage').value = '';
+        }
+
+        // تحديث عرض الممثلين
+        function updateActorList() {
+            const actorList = document.getElementById('actorList');
+            actorList.innerHTML = ''; // مسح المحتوى الحالي
+
+            actors.forEach(actor => {
+                actorList.innerHTML += `
+                    <div class="actor-item">
+                        <img src="${actor.image}" alt="${actor.name}">
+                        <span>${actor.name}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // توليد الكود
+        function generateCode() {
+            if (actors.length === 0) {
+                alert('الرجاء إضافة ممثلين');
+                return;
+            }
+
+            let generatedCode = `<div class="post-actors" dir="ltr">
+                                <h4><span>فريق</span> <em>العمل</em></h4>
+                                <div class='owl-carousel' id='owl-slide'>`;
+
+            actors.forEach(actor => {
+                generatedCode += `
+                    <div>
+                        <div class="owl-actors-box">
+                            <div class="owl-actors-thumb">
+                                <img src="${actor.image}" alt="${actor.name}">
+                            </div>
+                            <span>${actor.name}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            generatedCode += `</div></div>`;
+
+            // عرض الكود الناتج في textarea
+            document.getElementById('generatedCode').value = generatedCode;
+        }
+    </script>
+</body>
+</html>
+
